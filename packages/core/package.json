@@ -1,0 +1,27 @@
+{
+  "name": "@antrian-kit/core",
+  "version": "0.1.0",
+  "description": "Pure state machine and in-memory queue logic for Antrian Kit",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "test": "node --test dist/test/*.test.js",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@antrian-kit/contracts": "^0.1.0"
+  },
+  "author": "coldalpha",
+  "license": "MIT"
+}
