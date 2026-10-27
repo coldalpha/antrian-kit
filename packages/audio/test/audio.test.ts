@@ -1,10 +1,12 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
+import * as path from 'node:path';
 import {
   buildIndonesianNumberTokens,
   AudioSequenceBuilder,
   AudioQueuePlayer,
   MockAudioPlayerAdapter,
+  AudioStitcher,
 } from '../src/index.js';
 
 describe('Indonesian Number Audio Tokens', () => {
@@ -224,5 +226,41 @@ describe('AudioQueuePlayer', () => {
     assert.ok(mock.playedTracks.length > 0);
     assert.equal(mock.playedTracks[0], 'phrases/nomor_antrian.mp3');
     assert.equal(mock.playedTracks[1], 'numbers/1.mp3');
+  });
+});
+
+describe('AudioStitcher', () => {
+  const assetsDir = path.resolve(import.meta.dirname, '../../assets/id');
+
+  test('should strip ID3v2 and ID3v1 tags correctly', () => {
+    // Construct fake ID3v2 header
+    const fakeId3 = Buffer.from([0x49, 0x44, 0x33, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04]); // 4 bytes size
+    const payload = Buffer.from([0xaa, 0xbb, 0xcc, 0xdd]);
+    const mp3Data = Buffer.from([0xff, 0xfb, 0x90, 0x64]);
+    const input = Buffer.concat([fakeId3, payload, mp3Data]);
+
+    const extracted = AudioStitcher.extractMp3Frames(input);
+    assert.deepEqual(extracted, mp3Data);
+  });
+
+  test('should stitch announcement sequence into single continuous MP3 buffer', () => {
+    const builder = new AudioSequenceBuilder({ baseAssetUrl: '' });
+    const payload = builder.buildCallAnnouncement({
+      ticketNumber: 'A-001',
+      numberOnly: 1,
+      prefix: 'A',
+      destinationCode: 'klinik_umum',
+      bellChime: true,
+    });
+
+    const stitcher = new AudioStitcher({ baseAssetDir: assetsDir });
+    const merged = stitcher.stitchAnnouncement(payload);
+
+    assert.ok(merged.length > 50000, `Merged buffer size should be substantial: ${merged.length}`);
+    // First byte of MP3 frame should start with frame sync (0xFF)
+    assert.equal(merged[0], 0xff);
+
+    const dataUri = stitcher.toBase64(payload.sequence);
+    assert.ok(dataUri.startsWith('data:audio/mpeg;base64,'));
   });
 });

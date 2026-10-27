@@ -15,6 +15,22 @@ Reusable Queue Calling SDK, Audio Engine, and Realtime Display for Cross-Platfor
 - **`apps/api`**: REST API backend terpusat untuk antrean.
 - **`adapters`**: Adapter Laravel, React, Vue, dan Electron.
 
+## Multi-Language Packages
+
+`antrian-kit` mendukung 4 ekosistem runtime dengan API dan output yang identik:
+
+- **Node.js / TypeScript**: `packages/audio` & `packages/core` (ESM / npm).
+- **PHP**: `packages/php` (Composer `coldalpha/antrian-kit`, PHP 7.4 - 8.3).
+- **Go**: `packages/go` (Go Module `github.com/coldalpha/antrian-kit/packages/go`, Go 1.21+).
+- **Java**: `packages/java` (Maven `dev.coldalpha:antrian-kit`, Java 17+).
+
+## Audio Stitcher (Gapless Merge)
+
+Untuk menghindari jeda/tersendat saat memutar file audio terpisah di browser/loket, semua SDK dilengkapi dengan **`AudioStitcher`**:
+1. Menghapus header metadata ID3v2/ID3v1 secara otomatis.
+2. Menggabungkan raw MP3 audio frames langsung menjadi **1 file/stream MP3 utuh yang halus dan tidak bersambung-sambung**.
+3. Mendukung ekspor ke **Buffer / byte array**, file MP3 langsung, atau string **Base64 Data URI** (`data:audio/mpeg;base64,...`) siap pakai di tag `<audio src="...">` frontend.
+
 ## Audio Assets (`id-ID`)
 
 Aset suara Bahasa Indonesia tersimpan di `packages/audio/assets/id/`:
