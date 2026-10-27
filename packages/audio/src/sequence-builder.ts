@@ -25,8 +25,18 @@ export class AudioSequenceBuilder {
     destinationCode?: string; // e.g. "klinik_gigi", "gigi", "umum", "klinik_umum"
     prefix?: string;
     includeClinicPhrase?: boolean;
+    bellChime?: boolean;
   }): AudioAnnouncementPayload {
     const sequence: AudioSequenceItem[] = [];
+
+    // 0. Optional Bell Chime ("Ting Tung" / Ding Dong)
+    if (params.bellChime) {
+      sequence.push({
+        token: 'bell:chime',
+        path: this.resolvePath('bells/bell.mp3'),
+        text: 'Ting Tung',
+      });
+    }
 
     // 1. "Nomor Antrian"
     sequence.push({
@@ -86,6 +96,7 @@ export class AudioSequenceBuilder {
       language: 'id-ID',
       sequence,
       repeatCount: 1,
+      bellChime: params.bellChime,
     };
   }
 

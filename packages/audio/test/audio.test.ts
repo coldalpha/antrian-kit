@@ -184,6 +184,23 @@ describe('AudioSequenceBuilder', () => {
     assert.equal(destItem.path, '/audio/id/destinations/klinik_umum.mp3');
     assert.equal(destItem.text, 'klinik umum');
   });
+
+  test('should prepend bell chime when bellChime is true', () => {
+    const builder = new AudioSequenceBuilder({ baseAssetUrl: '/audio/id/' });
+    const payload = builder.buildCallAnnouncement({
+      ticketNumber: 'A-001',
+      numberOnly: 1,
+      prefix: 'A',
+      destinationCode: 'klinik_umum',
+      bellChime: true,
+    });
+
+    assert.equal(payload.sequence[0].token, 'bell:chime');
+    assert.equal(payload.sequence[0].path, '/audio/id/bells/bell.mp3');
+    assert.equal(payload.sequence[0].text, 'Ting Tung');
+    assert.equal(payload.sequence[1].token, 'phrase:nomor_antrian');
+    assert.equal(payload.sequence[2].token, 'letter:a');
+  });
 });
 
 describe('AudioQueuePlayer', () => {

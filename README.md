@@ -18,6 +18,7 @@ Reusable Queue Calling SDK, Audio Engine, and Realtime Display for Cross-Platfor
 ## Audio Assets (`id-ID`)
 
 Aset suara Bahasa Indonesia tersimpan di `packages/audio/assets/id/`:
+- **`bells/`**: `bell.mp3` (ting tung chime pembuka).
 - **`letters/`**: `a.mp3` - `e.mp3` (prefix antrean).
 - **`numbers/`**: `1.mp3` - `11.mp3`, `belas.mp3`, `puluh.mp3`, `seratus.mp3`, `ratus.mp3`, `ribu.mp3`.
 - **`phrases/`**: `nomor_antrian.mp3`, `silakan_menuju.mp3`, `ke_klinik.mp3`.
