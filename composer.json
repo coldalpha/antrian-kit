@@ -1,0 +1,27 @@
+{
+  "name": "coldalpha/antrian-kit",
+  "description": "Cross-platform queue calling SDK, gapless audio stitcher, and realtime display for PHP & Laravel",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "coldalpha",
+      "email": "owner@coldalpha.dev"
+    }
+  ],
+  "require": {
+    "php": ">=7.4 || >=8.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "AntrianKit\\": "packages/php/src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "AntrianKit\\Laravel\\AntrianKitServiceProvider"
+      ]
+    }
+  }
+}

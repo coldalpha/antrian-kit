@@ -1,6 +1,8 @@
 package antriankit
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -73,5 +75,58 @@ func TestSequenceBuilderAndStitcher(t *testing.T) {
 
 	if !strings.HasPrefix(b64, "data:audio/mpeg;base64,") {
 		t.Errorf("data URI prefix invalid")
+	}
+}
+
+func TestDisplayHub(t *testing.T) {
+	assetsDir, err := filepath.Abs("../audio/assets/id")
+	if err != nil {
+		t.Fatalf("failed to resolve assets path: %v", err)
+	}
+
+	hub := NewDisplayHub(assetsDir, DisplayConfig{
+		ClinicName: "Klinik RSUD Batang",
+		StreamURL:  "/custom/stream",
+	})
+
+	// 1. Test HTML handler
+	req := httptest.NewRequest("GET", "/display", nil)
+	w := httptest.NewRecorder()
+	hub.DisplayHandler()(w, req)
+
+	res := w.Result()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("expected 200, got %d", res.StatusCode)
+	}
+
+	body := w.Body.String()
+	if !strings.Contains(body, "Klinik RSUD Batang") {
+		t.Errorf("HTML should contain clinic name")
+	}
+	if !strings.Contains(body, "/custom/stream") {
+		t.Errorf("HTML should contain custom stream url")
+	}
+
+	// 2. Test BroadcastCall
+	ev, err := hub.BroadcastCall(CallParams{
+		TicketNumber:    "A-005",
+		NumberOnly:      5,
+		Prefix:          "A",
+		DestinationCode: "klinik_gigi",
+		BellChime:       true,
+	}, []string{"A-006", "A-007"})
+
+	if err != nil {
+		t.Fatalf("broadcast call error: %v", err)
+	}
+
+	if ev.TicketNumber != "A-005" {
+		t.Errorf("expected ticket A-005, got %s", ev.TicketNumber)
+	}
+	if !strings.HasPrefix(ev.Audio, "data:audio/mpeg;base64,") {
+		t.Errorf("expected audio base64 data URI")
+	}
+	if len(ev.Waiting) != 2 {
+		t.Errorf("expected 2 waiting tickets, got %d", len(ev.Waiting))
 	}
 }

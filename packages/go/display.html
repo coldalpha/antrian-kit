@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{CLINIC_NAME}} - Display Antrean</title>
+  <style>
+    :root {
+      --primary: #16a34a;
+      --primary-dark: #15803d;
+      --primary-light: #dcfce7;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #f59e0b;
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    /* Header */
+    header {
+      background-color: var(--card-bg);
+      border-bottom: 2px solid var(--primary);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .brand-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-badge {
+      background-color: var(--primary);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .clock-container {
+      text-align: right;
+    }
+
+    .clock-time {
+      font-size: 2rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--primary-light);
+    }
+
+    .clock-date {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    /* Layout Main */
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 65% 35%;
+      gap: 24px;
+      padding: 24px 32px;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Calling Card (Left) */
+    .calling-card {
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+      border: 3px solid var(--primary);
+      border-radius: 20px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(22, 163, 74, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .calling-card.pulse {
+      animation: callPulse 1.2s infinite alternate;
+      border-color: #22c55e;
+    }
+
+    @keyframes callPulse {
+      0% {
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+        transform: scale(1);
+      }
+      100% {
+        box-shadow: 0 0 50px rgba(34, 197, 94, 0.8);
+        transform: scale(1.015);
+      }
+    }
+
+    .calling-label {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .calling-number {
+      font-size: 8.5rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #ffffff;
+      line-height: 1.1;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+      margin: 12px 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .calling-destination {
+      background: var(--primary);
+      color: #ffffff;
+      padding: 12px 40px;
+      border-radius: 999px;
+      font-size: 2.2rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 15px rgba(22, 163, 74, 0.4);
+      margin-top: 10px;
+    }
+
+    /* Right Column Cards */
+    .side-column {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .panel-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .panel-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 10px;
+    }
+
+    .queue-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-content: flex-start;
+      overflow-y: auto;
+      max-height: 180px;
+    }
+
+    .queue-badge {
+      background-color: #334155;
+      color: #f1f5f9;
+      font-size: 1.35rem;
+      font-weight: 700;
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 1px solid #475569;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+      max-height: 200px;
+    }
+
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 10px 16px;
+      border-radius: 8px;
+      border-left: 4px solid var(--primary);
+    }
+
+    .history-item .hist-num {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .history-item .hist-dest {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    /* Footer Marquee */
+    footer {
+      background-color: var(--card-bg);
+      border-top: 1px solid var(--card-border);
+      padding: 10px 32px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .ticker-title {
+      background: var(--primary);
+      color: white;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 4px 12px;
+      border-radius: 4px;
+      margin-right: 16px;
+      white-space: nowrap;
+    }
+
+    .ticker-text {
+      color: var(--text-muted);
+      white-space: nowrap;
+      font-size: 1.05rem;
+      animation: marquee 25s linear infinite;
+    }
+
+    @keyframes marquee {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    /* Autoplay Unlock Modal */
+    #start-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #start-overlay h2 {
+      font-size: 2.5rem;
+      color: #ffffff;
+    }
+
+    #start-overlay p {
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      max-width: 500px;
+    }
+
+    .btn-start {
+      background: var(--primary);
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 700;
+      padding: 16px 40px;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(22, 163, 74, 0.5);
+      transition: all 0.2s;
+    }
+
+    .btn-start:hover {
+      background: var(--primary-dark);
+      transform: scale(1.05);
+    }
+
+    .fullscreen-btn {
+      position: fixed;
+      bottom: 60px;
+      right: 20px;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      z-index: 50;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Overlay Unlock Audio Autoplay -->
+  <div id="start-overlay">
+    <h2>Display Antrean Siap</h2>
+    <p>Klik tombol di bawah untuk mengaktifkan pemutaran suara panggilan otomatis.</p>
+    <button class="btn-start" id="btn-start" onclick="unlockAudio()">Mulai Display & Suara</button>
+  </div>
+
+  <!-- Hidden HTML5 Audio Element -->
+  <audio id="queue-audio" preload="auto"></audio>
+
+  <!-- Header -->
+  <header>
+    <div class="brand-title">
+      <span>{{CLINIC_NAME}}</span>
+      <span class="brand-badge">Sistem Antrean</span>
+    </div>
+    <div class="clock-container">
+      <div class="clock-time" id="clock-time">--:--:--</div>
+      <div class="clock-date" id="clock-date">--</div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Left: Calling Area -->
+    <section class="calling-card" id="calling-card">
+      <div class="calling-label">Nomor Antrean Dipanggil</div>
+      <div class="calling-number" id="calling-number">---</div>
+      <div class="calling-destination" id="calling-destination">Menunggu Panggilan</div>
+    </section>
+
+    <!-- Right: Queue & History -->
+    <div class="side-column">
+      <!-- Waiting List -->
+      <section class="panel-card">
+        <div class="panel-title">Antrean Menunggu</div>
+        <div class="queue-list" id="queue-waiting">
+          <span style="color: var(--text-muted); font-size: 1rem;">Tidak ada antrean</span>
+        </div>
+      </section>
+
+      <!-- History List -->
+      <section class="panel-card">
+        <div class="panel-title">Riwayat Panggilan</div>
+        <div class="history-list" id="queue-history">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer Running Text -->
+  <footer>
+    <span class="ticker-title">INFO</span>
+    <div class="ticker-text">{{RUNNING_TEXT}}</div>
+  </footer>
+
+  <button class="fullscreen-btn" onclick="toggleFullScreen()">Layar Penuh (F11)</button>
+
+  <script>
+    const streamUrl = "{{STREAM_URL}}";
+    const audioEl = document.getElementById('queue-audio');
+    let audioUnlocked = false;
+
+    function unlockAudio() {
+      // Play a blank sound to unlock browser autoplay policy
+      audioEl.src = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
+      audioEl.play().then(() => {
+        audioUnlocked = true;
+        document.getElementById('start-overlay').style.display = 'none';
+        connectSSE();
+      }).catch(err => {
+        console.warn('Unlock audio failed, proceeding anyway:', err);
+        document.getElementById('start-overlay').style.display = 'none';
+        connectSSE();
+      });
+    }
+
+    // Realtime Clock
+    function updateClock() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('id-ID', { hour12: false });
+      const dateStr = now.toLocaleDateString('id-ID', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      document.getElementById('clock-time').textContent = timeStr + ' WIB';
+      document.getElementById('clock-date').textContent = dateStr;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Fullscreen Toggle
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+    }
+
+    // SSE Realtime Connection
+    let eventSource = null;
+    const historyItems = [];
+
+    function connectSSE() {
+      if (!streamUrl) return;
+      if (eventSource) eventSource.close();
+
+      eventSource = new EventSource(streamUrl);
+
+      eventSource.onmessage = function (event) {
+        try {
+          const payload = JSON.parse(event.data);
+          handleQueueEvent(payload);
+        } catch (e) {
+          console.error('Invalid event JSON:', e, event.data);
+        }
+      };
+
+      eventSource.onerror = function () {
+        console.warn('SSE connection lost, reconnecting in 3s...');
+        eventSource.close();
+        setTimeout(connectSSE, 3000);
+      };
+    }
+
+    function handleQueueEvent(data) {
+      if (!data || !data.type) return;
+
+      if (data.type === 'call') {
+        const numEl = document.getElementById('calling-number');
+        const destEl = document.getElementById('calling-destination');
+        const card = document.getElementById('calling-card');
+
+        numEl.textContent = data.ticketNumber || '---';
+        destEl.textContent = data.destination || 'LOKET';
+
+        // Trigger visual pulse
+        card.classList.add('pulse');
+        setTimeout(() => card.classList.remove('pulse'), 6000);
+
+        // Update history
+        addHistory(data.ticketNumber, data.destination);
+
+        // Play gapless merged MP3 audio
+        if (data.audio) {
+          playCallAudio(data.audio);
+        }
+      }
+
+      if (data.waiting) {
+        updateWaitingList(data.waiting);
+      }
+    }
+
+    function playCallAudio(audioSource) {
+      audioEl.pause();
+      audioEl.currentTime = 0;
+      audioEl.src = audioSource;
+      audioEl.play().catch(e => {
+        console.error('Audio playback blocked or failed:', e);
+      });
+    }
+
+    function updateWaitingList(list) {
+      const el = document.getElementById('queue-waiting');
+      if (!list || list.length === 0) {
+        el.innerHTML = '<span style="color: var(--text-muted); font-size: 1rem;">Tidak ada antrean</span>';
+        return;
+      }
+      el.innerHTML = list.map(item => {
+        const num = typeof item === 'string' ? item : item.ticketNumber;
+        return `<span class="queue-badge">${num}</span>`;
+      }).join('');
+    }
+
+    function addHistory(ticket, dest) {
+      if (!ticket || ticket === '---') return;
+      historyItems.unshift({ ticket, dest, time: new Date().toLocaleTimeString('id-ID', { hour12: false }) });
+      if (historyItems.length > 5) historyItems.pop();
+
+      const el = document.getElementById('queue-history');
+      el.innerHTML = historyItems.map(item => `
+        <div class="history-item">
+          <span class="hist-num">${item.ticket}</span>
+          <span class="hist-dest">${item.dest} (${item.time})</span>
+        </div>
+      `).join('');
+    }
+  </script>
+</body>
+</html>
