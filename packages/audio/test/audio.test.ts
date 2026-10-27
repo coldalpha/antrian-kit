@@ -55,9 +55,41 @@ describe('Indonesian Number Audio Tokens', () => {
     ]);
   });
 
+  test('ratusan (100, 105, 115, 125, 200, 345)', () => {
+    assert.deepEqual(buildIndonesianNumberTokens(100), [
+      { token: 'num:seratus', path: 'numbers/seratus.mp3' },
+    ]);
+    assert.deepEqual(buildIndonesianNumberTokens(105), [
+      { token: 'num:seratus', path: 'numbers/seratus.mp3' },
+      { token: 'num:5', path: 'numbers/5.mp3' },
+    ]);
+    assert.deepEqual(buildIndonesianNumberTokens(115), [
+      { token: 'num:seratus', path: 'numbers/seratus.mp3' },
+      { token: 'num:5', path: 'numbers/5.mp3' },
+      { token: 'num:belas', path: 'numbers/belas.mp3' },
+    ]);
+    assert.deepEqual(buildIndonesianNumberTokens(125), [
+      { token: 'num:seratus', path: 'numbers/seratus.mp3' },
+      { token: 'num:2', path: 'numbers/2.mp3' },
+      { token: 'num:puluh', path: 'numbers/puluh.mp3' },
+      { token: 'num:5', path: 'numbers/5.mp3' },
+    ]);
+    assert.deepEqual(buildIndonesianNumberTokens(200), [
+      { token: 'num:2', path: 'numbers/2.mp3' },
+      { token: 'num:ratus', path: 'numbers/ratus.mp3' },
+    ]);
+    assert.deepEqual(buildIndonesianNumberTokens(345), [
+      { token: 'num:3', path: 'numbers/3.mp3' },
+      { token: 'num:ratus', path: 'numbers/ratus.mp3' },
+      { token: 'num:4', path: 'numbers/4.mp3' },
+      { token: 'num:puluh', path: 'numbers/puluh.mp3' },
+      { token: 'num:5', path: 'numbers/5.mp3' },
+    ]);
+  });
+
   test('out of range throws RangeError', () => {
     assert.throws(() => buildIndonesianNumberTokens(0), RangeError);
-    assert.throws(() => buildIndonesianNumberTokens(100), RangeError);
+    assert.throws(() => buildIndonesianNumberTokens(1000), RangeError);
   });
 });
 
@@ -93,6 +125,48 @@ describe('AudioSequenceBuilder', () => {
         '/audio/id/numbers/5.mp3',
         '/audio/id/phrases/silakan_menuju.mp3',
         '/audio/id/destinations/klinik_gigi.mp3',
+      ]
+    );
+  });
+
+  test('should support prefix letters and hundreds for ticket B-125', () => {
+    const builder = new AudioSequenceBuilder({ baseAssetUrl: '/audio/id/' });
+    const payload = builder.buildCallAnnouncement({
+      ticketNumber: 'B-125',
+      numberOnly: 125,
+      prefix: 'B',
+      destinationCode: 'umum',
+      includeClinicPhrase: true,
+    });
+
+    const expectedTokens = [
+      'phrase:nomor_antrian',
+      'letter:b',
+      'num:seratus',
+      'num:2',
+      'num:puluh',
+      'num:5',
+      'phrase:silakan_menuju',
+      'phrase:ke_klinik',
+      'dest:umum',
+    ];
+
+    assert.deepEqual(
+      payload.sequence.map((s) => s.token),
+      expectedTokens
+    );
+    assert.deepEqual(
+      payload.sequence.map((s) => s.path),
+      [
+        '/audio/id/phrases/nomor_antrian.mp3',
+        '/audio/id/letters/b.mp3',
+        '/audio/id/numbers/seratus.mp3',
+        '/audio/id/numbers/2.mp3',
+        '/audio/id/numbers/puluh.mp3',
+        '/audio/id/numbers/5.mp3',
+        '/audio/id/phrases/silakan_menuju.mp3',
+        '/audio/id/phrases/ke_klinik.mp3',
+        '/audio/id/destinations/umum.mp3',
       ]
     );
   });

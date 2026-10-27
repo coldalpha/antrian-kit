@@ -22,8 +22,9 @@ export class AudioSequenceBuilder {
   public buildCallAnnouncement(params: {
     ticketNumber: string;
     numberOnly: number;
-    destinationCode?: string; // e.g. "klinik_gigi"
+    destinationCode?: string; // e.g. "klinik_gigi", "gigi", "umum", "klinik_umum"
     prefix?: string;
+    includeClinicPhrase?: boolean;
   }): AudioAnnouncementPayload {
     const sequence: AudioSequenceItem[] = [];
 
@@ -34,7 +35,17 @@ export class AudioSequenceBuilder {
       text: 'Nomor Antrian',
     });
 
-    // 2. Numbers (1 - 99)
+    // 1b. Prefix Letter (A - E) if provided
+    if (params.prefix) {
+      const cleanPrefix = params.prefix.trim().toLowerCase();
+      sequence.push({
+        token: `letter:${cleanPrefix}`,
+        path: this.resolvePath(`letters/${cleanPrefix}.mp3`),
+        text: cleanPrefix.toUpperCase(),
+      });
+    }
+
+    // 2. Numbers (1 - 999)
     const numberTokens = buildIndonesianNumberTokens(params.numberOnly);
     for (const item of numberTokens) {
       sequence.push({
@@ -50,7 +61,16 @@ export class AudioSequenceBuilder {
       text: 'Silahkan Menuju',
     });
 
-    // 4. Destination (e.g. Klinik Gigi)
+    // 3b. Optional "Ke Klinik" phrase
+    if (params.includeClinicPhrase) {
+      sequence.push({
+        token: 'phrase:ke_klinik',
+        path: this.resolvePath('phrases/ke_klinik.mp3'),
+        text: 'Ke Klinik',
+      });
+    }
+
+    // 4. Destination (e.g. Klinik Gigi, Gigi, Umum)
     const dest = params.destinationCode || 'klinik_gigi';
     sequence.push({
       token: `dest:${dest}`,

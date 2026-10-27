@@ -1,11 +1,11 @@
 import type { AudioSequenceItem } from '@antrian-kit/contracts';
 
 /**
- * Maps integer (1 - 99) to sequence of Indonesian audio tokens
+ * Maps integer (1 - 999) to sequence of Indonesian audio tokens
  */
 export function buildIndonesianNumberTokens(num: number): AudioSequenceItem[] {
-  if (num < 1 || num > 99) {
-    throw new RangeError(`Nomor antrean di luar jangkauan yang didukung (1 - 99): ${num}`);
+  if (num < 1 || num > 999) {
+    throw new RangeError(`Nomor antrean di luar jangkauan yang didukung (1 - 999): ${num}`);
   }
 
   // 1 to 11 have dedicated files
@@ -34,25 +34,62 @@ export function buildIndonesianNumberTokens(num: number): AudioSequenceItem[] {
   }
 
   // 20 to 99: [puluhan] + "puluh" (+ [satuan])
-  const puluhan = Math.floor(num / 10);
-  const sisa = num % 10;
+  if (num <= 99) {
+    const puluhan = Math.floor(num / 10);
+    const sisa = num % 10;
 
+    const tokens: AudioSequenceItem[] = [
+      {
+        token: `num:${puluhan}`,
+        path: `numbers/${puluhan}.mp3`,
+      },
+      {
+        token: 'num:puluh',
+        path: 'numbers/puluh.mp3',
+      },
+    ];
+
+    if (sisa > 0) {
+      tokens.push({
+        token: `num:${sisa}`,
+        path: `numbers/${sisa}.mp3`,
+      });
+    }
+
+    return tokens;
+  }
+
+  // 100 to 199: "seratus" (+ [sisa 1 - 99])
+  if (num >= 100 && num <= 199) {
+    const tokens: AudioSequenceItem[] = [
+      {
+        token: 'num:seratus',
+        path: 'numbers/seratus.mp3',
+      },
+    ];
+    const sisa = num - 100;
+    if (sisa > 0) {
+      tokens.push(...buildIndonesianNumberTokens(sisa));
+    }
+    return tokens;
+  }
+
+  // 200 to 999: [ratusan] + "ratus" (+ [sisa 1 - 99])
+  const ratusan = Math.floor(num / 100);
+  const sisa = num % 100;
   const tokens: AudioSequenceItem[] = [
     {
-      token: `num:${puluhan}`,
-      path: `numbers/${puluhan}.mp3`,
+      token: `num:${ratusan}`,
+      path: `numbers/${ratusan}.mp3`,
     },
     {
-      token: 'num:puluh',
-      path: 'numbers/puluh.mp3',
+      token: 'num:ratus',
+      path: 'numbers/ratus.mp3',
     },
   ];
 
   if (sisa > 0) {
-    tokens.push({
-      token: `num:${sisa}`,
-      path: `numbers/${sisa}.mp3`,
-    });
+    tokens.push(...buildIndonesianNumberTokens(sisa));
   }
 
   return tokens;
