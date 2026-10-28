@@ -13,9 +13,22 @@ class AntrianController
      */
     public function display()
     {
-        $clinicName = config('antrian-kit.clinic_name', config('app.name', 'Klinik Mandiri'));
+        $clinicName = config('antrian-kit.clinic_name', config('app.name', 'KLINIK MANDIRI'));
+        $runningText = config('antrian-kit.running_text', 'Selamat datang di fasilitas kesehatan kami. Harap memperhatikan nomor antrean dan menuju ke ruangan yang ditentukan.');
+
+        if (class_exists(\App\Models\Setting::class)) {
+            try {
+                $setting = \App\Models\Setting::getSetting();
+                if (!empty($setting->nama_instansi)) {
+                    $clinicName = $setting->nama_instansi;
+                }
+                if (!empty($setting->tagline)) {
+                    $runningText = $setting->nama_instansi . ' - ' . $setting->tagline . '. ' . $runningText;
+                }
+            } catch (\Throwable $e) {}
+        }
+
         $streamUrl = config('antrian-kit.stream_url', url('/antrian/stream'));
-        $runningText = config('antrian-kit.running_text', 'Selamat datang. Harap memperhatikan nomor antrean dan menuju ke ruangan yang ditentukan.');
 
         $html = AntrianKit::renderDisplay([
             'clinic_name' => $clinicName,
